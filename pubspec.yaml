@@ -1,15 +1,40 @@
 name: habit_alarm
-description: A professional task manager built with Flutter.
+description: تطبيق تنبيهات وعادات مع نظام تحديات ونقاط ومستويات
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: ^2.2.2
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # إدارة الحالة
+  provider: ^6.1.2
+
+  # التخزين المحلي
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.4
+
+  # الإشعارات المحلية
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
+ flutter_timezone: ^3.0.1
+ 
+  # اللغة والتاريخ
+  intl: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.11
 
 flutter:
   uses-material-design: true

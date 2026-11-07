@@ -19,7 +19,7 @@ class NotificationService {
       tz.setLocalLocation(tz.getLocation(name));
     } catch (_) {}
 
-    const android = AndroidInitializationSettings('@drawable/ic_notification');
+    const android = AndroidInitializationSettings('@drawable/ic_launcher');
     await _plugin.initialize(const InitializationSettings(android: android));
   }
 

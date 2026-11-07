@@ -10,8 +10,7 @@
         android:label="Habit Alarm"
         android:name="${applicationName}"
         android:icon="@drawable/ic_launcher">
-
-        <activity
+                <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
@@ -28,24 +27,26 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+                <meta-data
+            android:name="flutterEmbedding"
+            android:value="2"/>
 
-           <receiver
-        android:exported="false"
-        android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
-    <receiver
-        android:exported="false"
-        android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
-        <intent-filter>
-            <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
-        </intent-filter>
-    </receiver>
-</application>
-
-<queries>
-    <intent>
-        <action android:name="android.intent.action.PROCESS_TEXT"/>
-        <data android:mimeType="text/plain"/>
-    </intent>
-</queries>
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+    </application>
+        <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
 </manifest>

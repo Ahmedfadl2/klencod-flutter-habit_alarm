@@ -1,4 +1,4 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+const android = AndroidInitializationSettings('@drawable/ic_notification');import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -21,7 +21,7 @@ class NotificationService {
       // لو فشل تحديد المنطقة الزمنية هيستخدم الافتراضي
     }
 
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings('@drawable/ic_notification');
     await _plugin.initialize(const InitializationSettings(android: android));
 
     final impl = _plugin.resolvePlatformSpecificImplementation<

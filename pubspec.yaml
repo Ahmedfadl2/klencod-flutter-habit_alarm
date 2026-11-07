@@ -24,8 +24,8 @@ dependencies:
   # الإشعارات المحلية
   flutter_local_notifications: ^17.2.2
   timezone: ^0.9.4
- flutter_timezone: ^3.0.1
- 
+  flutter_timezone: ^3.0.1
+  
   # اللغة والتاريخ
   intl: any
 

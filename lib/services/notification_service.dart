@@ -21,15 +21,21 @@ class NotificationService {
 
     const android = AndroidInitializationSettings('@drawable/ic_notification');
     await _plugin.initialize(const InitializationSettings(android: android));
+  }
 
-    final impl = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-    await impl?.requestNotificationsPermission();
-    await impl?.requestExactAlarmsPermission();
+  /// Called after the UI is visible, so a permission dialog can never block startup.
+  Future<void> requestPermissions() async {
+    try {
+      final impl = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await impl?.requestNotificationsPermission();
+      await impl?.requestExactAlarmsPermission();
+    } catch (_) {}
   }
 
   int _notificationId(String id) => int.parse(id) % 2147483647;
-    NotificationDetails get _details => const NotificationDetails(
+
+  NotificationDetails get _details => const NotificationDetails(
         android: AndroidNotificationDetails(
           'habit_alarm_channel',
           'Habit alarms',

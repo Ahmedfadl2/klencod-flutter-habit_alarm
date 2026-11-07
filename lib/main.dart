@@ -7,67 +7,82 @@ import 'screens/home_screen.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  String? errorText;
-  StorageService? storage;
-
-  // Notifications must be ready before storage re-schedules saved alarms.
-  try {
-    await NotificationService.instance.init();
-  } catch (e, st) {
-    errorText = 'Notifications init failed:\n$e\n$st';
-  }
-
-  try {
-    await Hive.initFlutter();
-    final s = StorageService();
-    await s.init();
-    storage = s;
-  } catch (e, st) {
-    errorText = '${errorText ?? ''}\n\nStorage init failed:\n$e\n$st';
-  }
-
-  // Diagnostic mode: show the error on screen instead of a white screen.
-  if (storage == null || errorText != null) {
-    runApp(ErrorApp(message: errorText ?? 'Unknown startup error'));
-    return;
-  }
-
-  runApp(
-    ChangeNotifierProvider<StorageService>.value(
-      value: storage,
-      child: const HabitAlarmApp(),
-    ),
-  );
+  runApp(const BootApp());
 }
 
-class ErrorApp extends StatelessWidget {
-  final String message;
-  const ErrorApp({super.key, required this.message});
+class BootApp extends StatefulWidget {
+  const BootApp({super.key});
+
+  @override
+  State<BootApp> createState() => _BootAppState();
+}
+
+class _BootAppState extends State<BootApp> {
+  StorageService? _storage;
+  String _status = 'Starting notifications...';
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _boot();
+  }
+
+  Future<void> _boot() async {
+    try {
+      await NotificationService.instance
+          .init()
+          .timeout(const Duration(seconds: 10));
+
+      if (mounted) setState(() => _status = 'Opening storage...');
+      await Hive.initFlutter().timeout(const Duration(seconds: 10));
+      final s = StorageService();
+      await s.init().timeout(const Duration(seconds: 15));
+
+      if (!mounted) return;
+      setState(() => _storage = s);
+
+      // Ask for permissions after the UI is visible, without blocking startup.
+      NotificationService.instance.requestPermissions();
+    } catch (e, st) {
+      if (!mounted) return;
+      setState(() => _error = 'Failed at: $_status\n\n$e\n\n$st');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    final storage = _storage;
+
+    Widget home;
+    if (_error != null) {
+      home = Scaffold(
         appBar: AppBar(title: const Text('Startup error')),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: SelectableText(message),
+          child: SelectableText(_error!),
         ),
-      ),
-    );
-  }
-}
+      );
+    } else if (storage == null) {
+      home = Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(_status),
+            ],
+          ),
+        ),
+      );
+    } else {
+      home = const HomeScreen();
+    }
 
-class HabitAlarmApp extends StatelessWidget {
-  const HabitAlarmApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+    final app = MaterialApp(
       title: 'Habit Alarm',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -81,7 +96,15 @@ class HabitAlarmApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const HomeScreen(),
+      home: home,
+    );
+
+    if (storage == null) return app;
+
+    // The provider sits above MaterialApp so pushed screens can reach it too.
+    return ChangeNotifierProvider<StorageService>.value(
+      value: storage,
+      child: app,
     );
   }
 }

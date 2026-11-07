@@ -1,4 +1,4 @@
-const android = AndroidInitializationSettings('@drawable/ic_notification');import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -17,9 +17,7 @@ class NotificationService {
     try {
       final name = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(name));
-    } catch (_) {
-      // لو فشل تحديد المنطقة الزمنية هيستخدم الافتراضي
-    }
+    } catch (_) {}
 
     const android = AndroidInitializationSettings('@drawable/ic_notification');
     await _plugin.initialize(const InitializationSettings(android: android));
@@ -30,20 +28,17 @@ class NotificationService {
     await impl?.requestExactAlarmsPermission();
   }
 
-  // رقم الإشعار مأخوذ من رقم التنبيه (وهو أرقام فقط)
   int _notificationId(String id) => int.parse(id) % 2147483647;
-
-  NotificationDetails get _details => const NotificationDetails(
+    NotificationDetails get _details => const NotificationDetails(
         android: AndroidNotificationDetails(
           'habit_alarm_channel',
-          'تنبيهات العادات',
-          channelDescription: 'تنبيهات الصلاة والتمرين والمذاكرة وغيرها',
+          'Habit alarms',
+          channelDescription: 'Habit and reminder alarms',
           importance: Importance.max,
           priority: Priority.high,
         ),
       );
 
-  /// بيجدول التنبيه يوميًا في نفس الوقت.
   Future<void> schedule(AlarmModel alarm) async {
     final now = tz.TZDateTime.now(tz.local);
     var when = tz.TZDateTime(
@@ -55,7 +50,7 @@ class NotificationService {
     Future<void> go(AndroidScheduleMode mode) => _plugin.zonedSchedule(
           _notificationId(alarm.id),
           alarm.title,
-          'حان موعد: ${alarm.title}',
+          alarm.title,
           when,
           _details,
           androidScheduleMode: mode,
@@ -67,7 +62,6 @@ class NotificationService {
     try {
       await go(AndroidScheduleMode.exactAllowWhileIdle);
     } catch (_) {
-      // لو إذن التنبيه الدقيق مش متاح، نستخدم الجدولة التقريبية
       await go(AndroidScheduleMode.inexactAllowWhileIdle);
     }
   }
